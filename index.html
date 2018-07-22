@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Just Name It!</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				font-size: inherit;
+				font-style: normal;
+				font-weight: normal;
+				font-family: "Source Sans Pro", "Open Sans", "sans-serif";
+				color: inherit;
+				-webkit-text-size-adjust: 100%;
+				-moz-text-size-adjust: 100%;
+				-ms-text-size-adjust: 100%;
+				text-size-adjust: 100%;
+				transition: all 0.3s ease;
+			}
+			body {
+				background: #ffffff;
+				font-size: 12pt;
+				color: #3a3745;
+			}
+			b {
+				font-weight: bold;
+				font-style: italic;
+			}
+			i { font-style: italic; }
+			header > div, main {
+				margin: 0 auto;
+				padding: 24pt;
+				max-width: 600pt;
+			}
+			header { background: #d9f7a2; }
+			main { margin-bottom: 50vh; }
+			h1, h2, p, ul { margin: 12pt 0; }
+			h1 {
+				font-size: 32pt;
+				font-weight: 600;
+				font-style: italic;
+				text-align: center;
+			}
+			h2 {
+				font-size: 24pt;
+				font-weight: 300;
+			}
+			p, ul {
+				font-size: 12pt;
+				line-height: 1.40em;
+			}
+			ul { margin-left: 12pt; }
+			ul li { padding-left: 4pt; }
+			ul ul { margin-top: 0; }
+			form label {
+				display: block;
+				margin: 8pt 12pt;
+				color: #a28062;
+			}
+			form div { margin: 12pt 0; }
+			form input {
+				display: block;
+				width: 100%;
+				padding: 12pt;
+				background: #ffffff;
+				border: none;
+			}
+			form input:focus { box-shadow: 0 -2pt 0 #a28062 inset; }
+			button {
+				padding: 12pt;
+				background: #ffffff;
+				border: none;
+				color: #a28062;
+				cursor: pointer;
+			}
+			button:hover, button:focus {
+				background: #a28062;
+				color: #ffffff;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div>
+				<h1>Just Name It!</h1>
+				<p>
+					Given a sequence of letters, i.e. the <i>"description"</i> below, <b>Just Name It!</b> will find all words whose letters fit in this letter sequence, following these rules:
+				</p>
+				<ul>
+					<li>Letters fit in the order they were provided,</li>
+					<li>First and last letters match,</li>
+					<li>Max 1 letter of difference, apart from the first and last letters:
+						<ul>
+							<li>A vowel can only be replaced by another vowel,</li>
+							<li>A consonant can only be replaced by another consonant.</li>
+						</ul>
+					</li>
+				</ul>
+				<p>
+					For instance: the description <i>"Learning Viral Enhanced Elder"</i> would match <i>"Lavender"</i>, as well as <i>"Ladder"</i>.
+				</p>
+				<p>
+					<b>Just Name It!</b> only returns English words, but any description will do.
+				</p>
+				<form id="inputForm">
+					<div>
+						<label for="lettersInput">Description:</label>
+						<input id="lettersInput" type="text" autofocus placeholder="Learning Viral Enhanced Elder" />
+					</div>
+					<div>
+						<button>Find Matchings</button>
+					</div>
+				</form>
+			</div>
+		</header>
+		<main>
+			<h2>Found <span id="foundCountSpan">2</span> words</h2>
+			<pre id="foundPre">Lavender<br />Ladder</pre>
+		</main>
+		<script src="./all-words.js"></script>
+		<script>
+			class WordDictionary {
+				constructor(allWords) {
+					this.words = new Map()
+
+					const alphbet = "abcdefghijklmnopqrstuvwxyz"
+
+					for (const firstLetter of alphbet)
+					for (const lastLetter of alphbet) {
+						this.words.set(this.dictionaryName(firstLetter + lastLetter), [])
+					}
+
+					for (const word of allWords) {
+						this.words.get(this.dictionaryName(word)).push(word)
+					}
+				}
+
+				filterWordsFittingIn(letterSequence) {
+					letterSequence = letterSequence.toLowerCase().replace(/[^a-z]/g, '')
+
+					if (letterSequence.length < 2) {
+						return []
+					}
+
+					const targetDictionary = this.words.get(this.dictionaryName(letterSequence))
+
+					if (targetDictionary.length == 0) {
+						return []
+					}
+
+					return targetDictionary.filter(word =>
+						new RegExp(word
+							.substring(1, word.length -1)
+							.split('')
+							.map((_, index, letters) => letters
+								.map((letter, i) => (i == index ? `[${this.alternatives(letter)}]` : letter) + ".*")
+								.join('')
+							)
+							.join("|")
+						)
+						.test(letterSequence.substring(1, letterSequence.length -1))
+					)
+				}
+
+				alternatives(letter) {
+					return "aeiouy".includes(letter) ? "aeiouy" : "bcdfghjklmnpqrstvwxz"
+				}
+
+				dictionaryName(letterSequence) {
+					return `${letterSequence[0]}-${letterSequence[letterSequence.length - 1]}`
+				}
+			}
+		</script>
+		<script>
+			const inputForm = document.getElementById("inputForm")
+			const lettersInput = document.getElementById("lettersInput")
+			const foundCountSpan = document.getElementById("foundCountSpan")
+			const foundPre = document.getElementById("foundPre")
+
+			const englishDictionary = new WordDictionary(ENGLISH_WORDS)
+
+			inputForm.addEventListener("submit", function findWordsMatchingDescription(event) {
+				event.preventDefault()
+				
+				const fittingWords = englishDictionary.filterWordsFittingIn(lettersInput.value)
+				
+				foundCountSpan.textContent = fittingWords.length
+				foundPre.textContent = fittingWords.join("\n")
+			}, false)
+		</script>
+	</body>
+</html>
