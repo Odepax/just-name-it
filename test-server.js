@@ -33,3 +33,6 @@ http.createServer(function (request, response) {
 			break
 	}
 }).listen(80, "0.0.0.0")
+
+console.log("Listening on all IP addresses, port 80.")
+console.log("Don't forget to allow inbound trafic in the firewall.")
