@@ -26,12 +26,15 @@
 				font-style: italic;
 			}
 			i { font-style: italic; }
-			header > div, main {
+			header > div,
+			aside > div,
+			main {
 				margin: 0 auto;
 				padding: 24pt;
 				max-width: 600pt;
 			}
 			header { background: #d9f7a2; }
+			aside { background: #f9b0c8; }
 			main { margin-bottom: 50vh; }
 			h1, h2, p, ul { margin: 12pt 0; }
 			h1 {
@@ -103,7 +106,7 @@
 				<form id="inputForm">
 					<div>
 						<label for="lettersInput">Description:</label>
-						<input id="lettersInput" type="text" autofocus placeholder="Learning Viral Enhanced Elder" />
+						<input id="lettersInput" type="text" autofocus placeholder="E.g.: Learning Viral Enhanced Elder" />
 					</div>
 					<div>
 						<button>Find Matchings</button>
@@ -111,9 +114,34 @@
 				</form>
 			</div>
 		</header>
+		<aside>
+			<div>
+				<h2>Alternatively...</h2>
+				<p>
+					Given a sequence of letters, i.e. the <i>"pattern"</i> below, <b>Just Name It!</b> will generate a random name, following these rules:
+				</p>
+				<ul>
+					<li>Vowels get replaced by random vowels,</li>
+					<li>Consonants get replaced by random consonants,</li>
+					<li>Other characters are kept as they are.</li>
+				</ul>
+				<p>
+					For instance: the pattern <i>"ABAB"</i> would match <i>"ORAS"</i>, as well as <i>"ESIS"</i>.
+				</p>
+				<form id="patternForm">
+					<div>
+						<label for="patternInput">Pattern:</label>
+						<input id="patternInput" type="text" placeholder="E.g.: ABAB' BA-ABAAB" />
+					</div>
+					<div>
+						<button>Generate</button>
+					</div>
+				</form>
+			</div>
+		</aside>
 		<main>
-			<h2>Found <span id="foundCountSpan">2</span> words</h2>
-			<pre id="foundPre">Lavender<br />Ladder</pre>
+			<h2 id="foundH2"></h2>
+			<pre id="foundPre"></pre>
 		</main>
 		<script src="./all-words.js"></script>
 		<script>
@@ -172,18 +200,57 @@
 		<script>
 			const inputForm = document.getElementById("inputForm")
 			const lettersInput = document.getElementById("lettersInput")
-			const foundCountSpan = document.getElementById("foundCountSpan")
+			const foundH2 = document.getElementById("foundH2")
 			const foundPre = document.getElementById("foundPre")
 
 			const englishDictionary = new WordDictionary(ENGLISH_WORDS)
 
 			inputForm.addEventListener("submit", function findWordsMatchingDescription(event) {
 				event.preventDefault()
-				
+
 				const fittingWords = englishDictionary.filterWordsFittingIn(lettersInput.value)
-				
-				foundCountSpan.textContent = fittingWords.length
+
+				foundH2.textContent = `Found ${ fittingWords.length } words`
 				foundPre.textContent = fittingWords.join("\n")
+			}, false)
+		</script>
+		<script>
+			const vowels = "aeiouy"
+			const consonants = "bcdfghjklmnpqrtsvwxz"
+
+			function randomName(pattern = "BABAB BABAB") {
+				return Array
+					.from(pattern.toLowerCase())
+					.map(char => (
+						  isFrom(char, vowels)     ? randomFrom(vowels)
+						: isFrom(char, consonants) ? randomFrom(consonants)
+						:                            char
+					))
+					.join("")
+			}
+
+			function isFrom(char, chars) {
+				return chars.includes(char)
+			}
+
+			function randomFrom(chars) {
+				return chars[Math.floor(Math.random() * chars.length)]
+			}
+		</script>
+		<script>
+			const patternForm = document.getElementById("patternForm")
+			const patternInput = document.getElementById("patternInput")
+
+			patternForm.addEventListener("submit", function findWordsMatchingDescription(event) {
+				event.preventDefault()
+
+				foundH2.textContent = randomName(patternInput.value)
+				foundPre.textContent = [
+					randomName(patternInput.value),
+					randomName(patternInput.value),
+					randomName(patternInput.value),
+					randomName(patternInput.value)
+				].join("\n")
 			}, false)
 		</script>
 	</body>
