@@ -1,3 +1,5 @@
+// Happily mocking the all-words.js dictionary since 2018!
+
 const http = require("http")
 const url = require("url")
 const fs = require("fs")
