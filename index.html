@@ -149,10 +149,10 @@
 				constructor(allWords) {
 					this.words = new Map()
 
-					const alphbet = "abcdefghijklmnopqrstuvwxyz"
+					const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-					for (const firstLetter of alphbet)
-					for (const lastLetter of alphbet) {
+					for (const firstLetter of alphabet)
+					for (const lastLetter of alphabet) {
 						this.words.set(this.dictionaryName(firstLetter + lastLetter), [])
 					}
 
@@ -215,18 +215,37 @@
 			}, false)
 		</script>
 		<script>
-			const vowels = "aeiouy"
-			const consonants = "bcdfghjklmnpqrtsvwxz"
+			const vowels = "EEEEEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAOOOOOOOOOOOOOOOOOOOIIIIIIIIIIIIIIIUUUUUUUUY"
+			const consonants = "RRRRRRRRRRRRSSSSSSSSSSSSTTTTTTTTTTTNNNNNNNNNNNLLLLLLLLMMMMMMMMCCCCCCCCDDDDDDDPPPPPPVVVVGGGHHHBBFFQQZZJKWX"
 
 			function randomName(pattern = "BABAB BABAB") {
-				return Array
-					.from(pattern.toLowerCase())
-					.map(char => (
-						  isFrom(char, vowels)     ? randomFrom(vowels)
-						: isFrom(char, consonants) ? randomFrom(consonants)
-						:                            char
-					))
-					.join("")
+				let name = ""
+				let lastVowel = ""
+				let lastConsonant = ""
+
+				for (let char of pattern.toUpperCase()) {
+					if (isFrom(char, vowels)) {
+						char = randomFrom(vowels)
+
+						if (char == lastVowel)
+							char = randomFrom(vowels)
+
+						lastVowel = char
+					}
+
+					else if (isFrom(char, consonants)) {
+						char = randomFrom(consonants)
+
+						if (char == lastConsonant)
+							char = randomFrom(consonants)
+
+						lastConsonant = char
+					}
+
+					name += char
+				}
+
+				return name
 			}
 
 			function isFrom(char, chars) {
